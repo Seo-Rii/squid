@@ -9,6 +9,7 @@ import { WebglAddon } from 'xterm-addon-webgl';
 import Options, { IOptions, ITheme } from '@/options/options';
 import AppWatcher from '@/app/appWatcher';
 import { remote, clipboard, shell } from 'electron';
+import PluginsManager from '@/plugins/pluginsManager';
 
 export default class AppTerminal {
 
@@ -29,7 +30,7 @@ export default class AppTerminal {
         const options: IOptions = Options.get().getOptions();
 
         // Build the instances
-        this.xterm = this.buildTerminal(options);
+        this.xterm = PluginsManager.getInstance().hookTerminal(this.buildTerminal(options));
         this.ptyProcess = this.buildPty(options.shell);
         this.id = id;
 
