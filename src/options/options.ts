@@ -4,6 +4,7 @@ import { userDataPath } from '@/utils/utils';
 import { defaultConfig } from '@/options/defaultConfig';
 import { remote } from 'electron';
 import { VibrancyOptions } from 'electron-acrylic-window';
+import PluginsManager from '@/plugins/pluginsManager';
 
 export default class Options {
 
@@ -63,9 +64,17 @@ export default class Options {
      */
     public setOptions(options: IOptions) {
 
+        // Save the old options to trigger onOptionsUpdated later
+        const oldOptions: IOptions = this.options;
         this.options = options;
 
         remote.getCurrentWebContents().send('reload', this.options);
+
+        PluginsManager.get().trigger('onOptionsUpdated', {
+
+            oldOptions,
+            newOptions: options,
+        });
     }
 
     /**

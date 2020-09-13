@@ -1,14 +1,37 @@
 import { Terminal } from 'xterm';
+import { WebLinksAddon } from 'xterm-addon-web-links';
+import { shell } from 'electron';
+import SquidPlugin from '../../src/plugins/squidPlugin';
+import { IOptions } from '../../src/options/options';
 
-export default new class Weblinks {
+export default new class Weblinks implements SquidPlugin {
 
-    public onSelfInit() {
+    private weblinksAddon: WebLinksAddon;
 
-        console.log('weblinks inited');
+    constructor() {
+
+        // Instanciante the weblinks addon
+        this.weblinksAddon = new WebLinksAddon((event: MouseEvent, uri: string) => {
+
+            shell.openExternal(uri);
+        });
     }
 
-    public hookTerminal(terminal: Terminal) {
+    /**
+     * Called when the native addons are applied.
+     *
+     * We load the created weblinks addon to the
+     * terminal instance.
+     *
+     * @param terminal - The terminal with loaded addons
+     */
+    public onAddonsApplies(terminal: Terminal) {
 
-        console.log('hooked terminal');
+        terminal.loadAddon(this.weblinksAddon);
+    }
+
+    onOptionsUpdated(options: { oldOptions: IOptions; newOptions: IOptions }) {
+
+        console.log(options);
     }
 }
