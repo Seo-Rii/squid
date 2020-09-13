@@ -2,13 +2,12 @@ import { Terminal } from 'xterm';
 import * as pty from 'node-pty';
 import { IPty } from 'node-pty';
 import { FitAddon } from 'xterm-addon-fit';
-import { WebLinksAddon } from 'xterm-addon-web-links';
 import { LigaturesAddon } from 'xterm-addon-ligatures';
 import { Unicode11Addon } from 'xterm-addon-unicode11';
 import { WebglAddon } from 'xterm-addon-webgl';
 import Options, { IOptions, ITheme } from '@/options/options';
 import AppWatcher from '@/app/appWatcher';
-import { remote, clipboard, shell } from 'electron';
+import { remote, clipboard } from 'electron';
 import PluginsManager from '@/plugins/pluginsManager';
 
 export default class AppTerminal {
@@ -30,8 +29,8 @@ export default class AppTerminal {
         const options: IOptions = Options.get().getOptions();
 
         // Build the instances
-        this.xterm = PluginsManager.getInstance().hookTerminal(this.buildTerminal(options));
-        this.ptyProcess = this.buildPty(options.shell);
+        this.xterm = PluginsManager.get().hook('hookTerminal', this.buildTerminal(options));
+        this.ptyProcess = PluginsManager.get().hook('hookPty', this.buildPty(options.shell));
         this.id = id;
 
         // Apply themes and addons
@@ -119,7 +118,6 @@ export default class AppTerminal {
     private applyAddons(options: IOptions) {
 
         this.xterm.loadAddon(this.fitAddon = new FitAddon());
-        this.xterm.loadAddon(new WebLinksAddon((event: MouseEvent, uri: string) => shell.openExternal(uri)));
         this.xterm.loadAddon(new LigaturesAddon());
         this.xterm.loadAddon(new Unicode11Addon());
 
@@ -127,6 +125,8 @@ export default class AppTerminal {
             this.xterm.loadAddon(new WebglAddon());
 
         this.xterm.unicode.activeVersion = '11';
+
+        PluginsManager.get().trigger('onAddonsApplies', this.xterm);
     }
 
     /**

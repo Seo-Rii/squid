@@ -1,6 +1,5 @@
 import SquidPlugin from '@/plugins/squidPlugin';
 import fs from 'fs';
-import { Terminal } from 'xterm';
 
 export const PLUGINS_FOLDER = 'plugins';
 
@@ -14,7 +13,7 @@ export default class PluginsManager {
         // Let's load all the plugins
         this.plugins = this.loadPlugins();
 
-        //this.triggerEvent('AllInited');
+        this.trigger('onAllInited');
     }
 
     /**
@@ -33,7 +32,8 @@ export default class PluginsManager {
             const plugin: SquidPlugin = this.loadPlugin(file);
 
             // Trigger the onSelfInit method
-            plugin.onSelfInit();
+            if(plugin.onSelfInit)
+                plugin.onSelfInit();
 
             plugins.push(plugin);
         });
@@ -54,22 +54,40 @@ export default class PluginsManager {
     }
 
     /**
-     * Hook a terminal with all the plugins, and
-     * return it back.
+     * Hook a object with a hookName and return it back.
+     * See {@link SquidPlugin} to get all the possible
+     * events.
      *
-     * NOTE: Need rewrite
-     *
-     * @param terminal - The terminal to hook
-     * @returns The hooked terminal
+     * @param hookName - The name of the hook to trigger
+     * @param object - The object to hook
      */
-    public hookTerminal(terminal: Terminal): Terminal {
+    public hook<T>(hookName: string, object: T): T {
 
+        this.trigger(hookName, object);
+
+        return object;
+    }
+
+    /**
+     * Trigger a new event with optional parameters,
+     * see {@link SquidPlugin} to get all the possible
+     * events.
+     *
+     * @param eventName - The name of the event to trigger
+     * @param object - Optional parameters to pass in the event
+     */
+    public trigger<T>(eventName: string, object?: T) {
+
+        // Trigger for all plugins
         this.plugins.forEach((plugin: SquidPlugin) => {
 
-            plugin.hookTerminal(terminal);
+            // Only execute event if the method
+            // is implemented
+            // @ts-ignore
+            if(plugin[`${eventName}`])
+                // @ts-ignore
+                plugin[`${eventName}`](object);
         });
-
-        return terminal;
     }
 
     /**
@@ -78,7 +96,7 @@ export default class PluginsManager {
      *
      * @returns The instance of PluginsManager
      */
-    public static getInstance(): PluginsManager {
+    public static get(): PluginsManager {
 
         if(!PluginsManager.instance)
             PluginsManager.instance = new PluginsManager();
