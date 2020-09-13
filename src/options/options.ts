@@ -209,7 +209,7 @@ interface IFont {
     family: string;
 }
 
-export type IShortcutType = 'pane:open' | 'pane:close' | 'pane:switchLeft' | 'pane:switchRight' | 'devtools';
+export type ShortcutAction = 'pane:open' | 'pane:close' | 'pane:switchLeft' | 'pane:switchRight' | 'devtools' | string;
 
 export interface IShortcut {
 
@@ -220,5 +220,5 @@ export interface IShortcut {
     /**
      * The desired action.
      */
-    action: IShortcutType;
+    action: ShortcutAction;
 }

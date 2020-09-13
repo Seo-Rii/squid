@@ -1,6 +1,6 @@
 import { Terminal } from 'xterm';
 import { IPty } from 'node-pty';
-import { IOptions } from '@/options/options';
+import {IOptions, ShortcutAction} from '@/options/options';
 
 export default interface SquidPlugin {
 
@@ -25,6 +25,12 @@ export default interface SquidPlugin {
      * @param terminal - The terminal with loaded addons
      */
     onAddonsApplies?(terminal: Terminal): void;
+    /**
+     * Called when a shortcut is executed.
+     *
+     * @param action - The shortcut action
+     */
+    onShortcut?(action: ShortcutAction): void
     /**
      * Hook a terminal.
      *

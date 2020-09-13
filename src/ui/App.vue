@@ -18,7 +18,7 @@
     import Tab from '@/ui/components/Tab.vue';
     import Terminal from '@/ui/components/Terminal.vue';
     import { ITerminal } from '@/app/appTerminal';
-    import Options, { IShortcutType } from '@/options/options';
+    import Options, { ShortcutAction } from '@/options/options';
 
     @Component({
 
@@ -45,7 +45,7 @@
             this.openTab();
 
             // Shortcuts
-            ipcRenderer.on('shortcuts', (event: IpcRendererEvent, message: IShortcutType, object: number | string) => {
+            ipcRenderer.on('shortcuts', (event: IpcRendererEvent, message: ShortcutAction, object: number | string) => {
 
                 switch (message) {
 

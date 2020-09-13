@@ -1,7 +1,8 @@
 import AppTerminal from '@/app/appTerminal';
 import { watchForChanges } from '@/options/watcher';
-import Options, { IOptions } from '@/options/options';
-import { clipboard, ipcRenderer, remote } from 'electron';
+import Options, { IOptions, ShortcutAction } from '@/options/options';
+import { clipboard, ipcRenderer, IpcRendererEvent, remote } from 'electron';
+import PluginsManager from '@/plugins/pluginsManager';
 
 export default class AppWatcher {
 
@@ -66,10 +67,15 @@ export default class AppWatcher {
      */
     private watchContextMenu() {
 
-        // Shortcuts
-        ipcRenderer.on('shortcuts', (event, message) => {
+        ipcRenderer.on('shortcutPerformed', (event: IpcRendererEvent, action: ShortcutAction) => {
 
-            switch (message) {
+            PluginsManager.get().trigger('onShortcut', action);
+        });
+
+        // Shortcuts
+        ipcRenderer.on('shortcuts', (event: IpcRendererEvent, action: ShortcutAction) => {
+
+            switch (action) {
 
                 case 'paste':
                     this.appTerminal.onData(clipboard.readText());

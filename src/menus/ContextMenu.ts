@@ -1,4 +1,4 @@
-import { IShortcut, IShortcutType } from '@/options/options';
+import { IShortcut, ShortcutAction } from '@/options/options';
 import { Menu, MenuItem, ipcMain, BrowserWindow, globalShortcut, app } from 'electron';
 
 export default class ContextMenu {
@@ -26,12 +26,41 @@ export default class ContextMenu {
         ipcMain.on('contextmenu', () => this.openMenu());
     }
 
+    /**
+     * Register all the shortcuts.
+     */
     private registerGlobalShortcuts() {
 
-        globalShortcut.register(this.findShortcut('pane:open'), () => this.newTab());
-        globalShortcut.register(this.findShortcut('pane:close'), () => this.closeTab());
-        globalShortcut.register(this.findShortcut('pane:switchLeft'), () => this.switchLeft());
-        globalShortcut.register(this.findShortcut('pane:switchRight'), () => this.switchRight());
+        this.shortcuts.forEach((shortcut: IShortcut) => {
+            
+            globalShortcut.register(this.findShortcut(shortcut.action), () => this.onShortcutExecuted(shortcut));
+        });
+    }
+
+    /**
+     * Called when a shortcut is executed, to dispatch the action.
+     *
+     * @param shortcut - The executed shortcut
+     */
+    private onShortcutExecuted(shortcut: IShortcut) {
+        
+        switch (shortcut.action) {
+
+            case 'pane:open':
+                this.newTab();
+                break;
+            case 'pane:close':
+                this.closeTab();
+                break;
+            case 'pane:switchLeft':
+                this.switchLeft();
+                break;
+            case 'pane:switchRight':
+                this.switchRight();
+                break;
+        }
+
+        this.window.webContents.send('shortcutPerformed', shortcut.action);
     }
 
     /**
@@ -63,7 +92,7 @@ export default class ContextMenu {
      * @param type - The type of the shortcut to find
      * @returns The shortcut
      */
-    findShortcut(type: IShortcutType): string {
+    findShortcut(type: ShortcutAction): string {
 
         let shortcut: string;
 
@@ -139,7 +168,7 @@ export default class ContextMenu {
      * @param type - The shortcut type to send
      * @param object - A optional parameter
      */
-    private sendToWebContents(type: IShortcutType, object?: any) {
+    private sendToWebContents(type: ShortcutAction, object?: any) {
 
         this.window.webContents.send('shortcuts', type, object);
     }
