@@ -28,4 +28,9 @@ export default new class Weblinks implements SquidPlugin {
 
         terminal.loadAddon(this.weblinksAddon);
     }
+
+    onOptionsUpdated(options: { oldOptions: IOptions; newOptions: IOptions }) {
+
+        console.log(options);
+    }
 }
