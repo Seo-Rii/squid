@@ -195,7 +195,7 @@ export default class AppTerminal {
      */
     public exit() {
 
-        remote.getCurrentWindow().webContents.send('shortcuts', 'pane:close');
+        remote.getCurrentWindow().webContents.send('shortcuts', 'pane:close', this.id);
     }
 
     /**
